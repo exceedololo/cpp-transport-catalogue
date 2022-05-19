@@ -7,8 +7,7 @@
 #include <iostream>
 #include <vector>
 
-namespace transport_catalogue::detail
-{
+namespace transport_catalogue::detail {
     std::pair<std::string_view, std::string_view> Split(std::string_view, char, int count = 1);
 
     std::string_view Lstrim(std::string_view);
@@ -18,8 +17,7 @@ namespace transport_catalogue::detail
     std::string_view TrimString(std::string_view);
 }
 
-namespace transport_catalogue::input_reader
-{
+namespace transport_catalogue::input_reader {
     void ProcessInput(TransportCatalogue& tc, std::istream& is);
     void ProcessInputQueries(TransportCatalogue& tc, std::vector<InputQuery>& queries);
 
