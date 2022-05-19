@@ -1,5 +1,3 @@
-// напишите решение с нуля
-// код сохраните в свой git-репозиторий
 #include "geo.h"
 #include "input_reader.h"
 #include "transport_catalogue.h"
@@ -13,6 +11,6 @@ int main()
     using namespace std::string_literals;
     transport_catalogue::TransportCatalogue tc;
     transport_catalogue::input_reader::ProcessInput(tc, std::cin);
-    transport_catalogue::stat_reader::ProcessRequests(std::cout, tc, std::cin);
+    transport_catalogue::stat_reader::ProcessRequests(std::cin, std::cout, tc);
     return 0;
 }
