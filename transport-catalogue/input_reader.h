@@ -1,25 +1,29 @@
 #pragma once
-#include "transport_catalogue.h"    
-#include <utility>          
+#include "transport_catalogue.h"
+#include <utility>
 #include <string>
-#include <string_view>     
-#include <istream>         
-#include <iostream>        
+#include <string_view>
+#include <istream>
+#include <iostream>
 #include <vector>
 
-
-namespace detail{
+namespace transport_catalogue::detail
+{
     std::pair<std::string_view, std::string_view> Split(std::string_view, char, int count = 1);
-    std::string_view Lstrip(std::string_view);
-    std::string_view Rstrip(std::string_view);
+
+    std::string_view Lstrim(std::string_view);
+
+    std::string_view Rstrim(std::string_view);
+
     std::string_view TrimString(std::string_view);
 }
 
-namespace transport_catalogue::input_reader{
+namespace transport_catalogue::input_reader
+{
+    void ProcessInput(TransportCatalogue& tc, std::istream& is);
+    void ProcessInputQueries(TransportCatalogue& tc, std::vector<InputQuery>& queries);
 
-    void ProcessInput(TransportCatalogue&, std::istream&);
-    void ProcessInputQueries(TransportCatalogue&, std::vector<InputQuery>&);
-    Stop ProcessQueryAddStop(std::string&);          
-    void ProcessQueryAddStopsDistance(TransportCatalogue&, std::string&); 
-    Route ProcessQueryAddRoute(TransportCatalogue&, std::string&);    
+    Stop ProcessQueryAddStop(std::string& query);
+    void ProcessQueryAddStopsDistance(TransportCatalogue& tc, std::string& query);
+    Bus ProcessQueryAddRoute(TransportCatalogue& tc, std::string& query);
 }
