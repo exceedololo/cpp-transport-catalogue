@@ -6,8 +6,7 @@
 
 #include <sstream>
 
-int main()
-{
+int main(){
     using namespace std::string_literals;
     transport_catalogue::TransportCatalogue tc;
     transport_catalogue::input_reader::ProcessInput(tc, std::cin);
