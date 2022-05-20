@@ -12,7 +12,7 @@
 namespace transport_catalogue::stat_reader{
     std::ostream& operator<<(std::ostream&, const Stop*);
     std::ostream& operator<<(std::ostream& os, const Route* route);
-
+/////////
     std::ostream& ProcessRequests(std::ostream&, TransportCatalogue&, std::istream&);  
     std::ostream& ExecuteRequest(std::ostream&, TransportCatalogue&, RequestQuery&); 
 } 
