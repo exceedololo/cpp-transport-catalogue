@@ -1,6 +1,6 @@
 #include "stat_reader.h"
 
-namespace transport_catalogue::stat_reader {
+namespace transport_catalogue::stat_reader {//
     std::ostream& operator<<(std::ostream& os, const Stop* stop) {
         using namespace std::string_literals;
         os << "Stop "s << stop->name << ": "s;
@@ -56,7 +56,7 @@ namespace transport_catalogue::stat_reader {
         return os;
     }
 
-    std::ostream& ExecuteRequest(std::ostream& os, TransportCatalogue& tc, RequestQuery& query) {
+    std::ostream& ExecuteRequest(std::ostream& os, TransportCatalogue& tc, RequestQuery& query) {//
         using namespace std::literals;
         if (query.type == RequestQueryType::GetRouteByName) {
             RequestResult result = tc.GetRouteInfo(query.params);
@@ -85,7 +85,7 @@ namespace transport_catalogue::stat_reader {
                 os << "Stop "s + std::string(query.params) + ": not found"s << std::endl;
             }
         } else if (query.type == RequestQueryType::NoOp) {
-            return os;
+            return os;//
         }
         return os;
     }
