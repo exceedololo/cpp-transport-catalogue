@@ -1,92 +1,48 @@
 #include "stat_reader.h"
+#include "transport_catalogue.h"
 
-namespace transport_catalogue::stat_reader {//
-    std::ostream& operator<<(std::ostream& os, const Stop* stop) {
-        using namespace std::string_literals;
-        os << "Stop "s << stop->name << ": "s;
-        os << std::fixed << std::setprecision(6);
-        os << stop->coords.lat << "s, ";
-        os << stop->coords.lng;
-        return os;
-    }
-    std::ostream& operator<<(std::ostream& os, const Route* route) {
-        using namespace std::string_literals;
-        if (route != nullptr) {
-            os << "Bus "s << route->bus_number << ": "s;
-            if (route->stops.size()) {
-                os << route->stops.size() << " stops on route, "s;
-                os << route->unique_stops_qty << " unique stops, "s;
-                os << route->meters_route_length << " route length, "s;
-                os << std::setprecision(6);
-                os << route->curvature << " curvature"s;
-            }
-            else {
-                os << "no stops"s;
-            }
+namespace transport_catalogue::stat_reader {
+    std::string PrintBus(const Bus_& bus, TransportCatalogue& tc) {
+        std::stringstream stream;
+
+        if (tc.GetRouteByName(bus.bus_number_)!=nullptr) {
+            stream << "Bus " << bus.bus_number_ << ": " << tc.GetRouteByName(bus.bus_number_)->stops.size()
+                   << " stops on route, "
+                   << bus.unique_stops_qty << " unique stops, " << bus.meters_route_length << " route length"
+                   << ", " << std::setprecision(6) << bus.curvature << " curvature" << std::endl;
         }
-        return os;
-    }
-
-    std::ostream& ProcessRequests(std::ostream& os, TransportCatalogue& tc, std::istream& is)  {
-        std::string line;
-        std::getline(is, line);
-        size_t request_num = static_cast<size_t>(std::stoul(line));
-        for (size_t i = 0; i < request_num; ++i)  {
-            std::getline(is, line, '\n');
-            auto tmp = detail::Split(line, ' ');
-            tmp.first = detail::TrimString(tmp.first);
-            tmp.second = detail::TrimString(tmp.second);
-            if (tmp.second.empty())  {
-                continue;
-            }
-            using namespace std::literals;
-            RequestQuery query;
-            if (tmp.first == "Bus"sv) {
-                query.type = RequestQueryType::GetRouteByName;
-            }
-            else if (tmp.first == "Stop"sv)  {
-                query.type = RequestQueryType::GetBusesForStop;
-            }
-            else {
-                query.type = RequestQueryType::NoOp;
-            }
-            query.params = tmp.second;
-            ExecuteRequest(std::cout, tc, query);
+        else {
+            stream << "Bus " << bus.bus_number_ << ": "
+                   << "not found" << std::endl;
         }
-        return os;
+        return stream.str();
     }
 
-    std::ostream& ExecuteRequest(std::ostream& os, TransportCatalogue& tc, RequestQuery& query) {//
-        using namespace std::literals;
-        if (query.type == RequestQueryType::GetRouteByName) {
-            RequestResult result = tc.GetRouteInfo(query.params);
-            if (result.code == RequestResultType::Ok) {
-                std::stringstream ss;
-                ss << result.r_ptr;
-                os << ss.str() << std::endl;
-            }
-            else    {
-                std::stringstream ss;
-                ss << "Bus "s << std::string(query.params) << ": not found"s;
-                os << ss.str() << std::endl;
-            }
-        } else if (query.type == RequestQueryType::GetBusesForStop)  {
-            RequestResult result = tc.GetBusesForStop(query.params);
-            if (result.code == RequestResultType::Ok)  {
-                std::stringstream ss;
-                for (auto& element : result.vector_str)  {
-                    ss << " "s << element;
+    std::string PrintStop(const Stop* stop, TransportCatalogue& tc, std::string_view stop_name) {
+        std::stringstream os;
+        if (stop != nullptr) {
+            if (!tc.GetBusContainerForStop(stop).empty()) {
+                os << "Stop " << stop_name << ": "
+                   << "buses ";
+                std::vector<std::string_view> found_buses;
+                for (auto& bus : tc.GetBusContainerForStop(stop)) {
+                    found_buses.push_back(bus->bus_number);
                 }
-                std::cout << "Stop "s + std::string(query.params) + ": buses"s + ss.str() << std::endl;
+                std::sort(found_buses.begin(), found_buses.end());
+                for (auto& founded: found_buses){
+                    os << founded << " ";
+                }
+                os << std::endl;
             }
-            else if (result.code == RequestResultType::NoBuses) {
-                os << "Stop "s + std::string(query.params) + ": no buses"s << std::endl;
-            } else if (result.code == RequestResultType::StopNotExists) {
-                os << "Stop "s + std::string(query.params) + ": not found"s << std::endl;
+            else {
+                os << "Stop " << stop->name << ": "
+                   << "no buses" << std::endl;
             }
-        } else if (query.type == RequestQueryType::NoOp) {
-            return os;//
         }
-        return os;
+        else {
+            os << "Stop " << stop_name << ": "
+               << "not found" << std::endl;
+        }
+        return os.str();
     }
-} 
+}
