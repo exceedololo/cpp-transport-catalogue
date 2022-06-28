@@ -61,8 +61,6 @@ namespace json {
     }
     const std::string& AsString() const{
         return (!IsString()) ? throw std::logic_error("String error") : std::get<std::string>(*this);
-        /*if (IsString()) return std::get<std::string>(*this);
-        else throw std::logic_error("Failed string");*/
     }
     bool AsBool() const{
         return (!IsBool()) ? throw std::logic_error("Bool error") :
