@@ -22,13 +22,21 @@ namespace transport_catalogue {
             }
         }
     }
-    std::unordered_set<Bus*> TransportCatalogue::GetBusContainerForStop(const Stop* stop) {
+
+    void TransportCatalogue::AddStopToBusMap(const std::string_view route) {
+        auto bus = GetRouteByName(route);
+        for (size_t i = 0; i < bus->stops.size(); ++i) {
+            buses_in_stop_[bus->stops[i]].insert(bus);
+        }
+    }
+
+    /*std::unordered_set<Bus*> TransportCatalogue::GetBusContainerForStop(const Stop* stop) {
         if (buses_in_stop_.find(stop) != buses_in_stop_.end()) {
             return buses_in_stop_.at(stop);
         }
         else
             return {};
-    }
+    }*/
 
     void TransportCatalogue::SetDistance(const Stop* stop_from, const Stop* stop_to, size_t dist) {
         if (stop_from != nullptr && stop_to != nullptr) {
@@ -81,35 +89,32 @@ namespace transport_catalogue {
     }
 
     Bus_ TransportCatalogue::GetBus_ByName(std::string_view bus_name) {
-        if (all_buses_map_.count(bus_name))
-        {
+        if (all_buses_map_.count(bus_name)){
             auto& Bus = all_buses_map_[bus_name];
             std::vector<const Stop*> tmp = Bus->stops;
-            size_t stops_num = static_cast<int>(Bus->stops.size());
-            size_t uniq = 0U;
+            int stops_num = static_cast<int>(Bus->stops.size());
+            int uniq = 0U;
             std::sort(tmp.begin(), tmp.end());
             auto last = std::unique(tmp.begin(), tmp.end());
             uniq = (last != tmp.end() ? std::distance(tmp.begin(), last) : tmp.size());
             double geo_length = 0L;
-            size_t meters_length = 0U;
+            int meters_length = 0U;
             double curv = 0L;
-            if (stops_num > 1)
-            {
-                for (int i = 0; i < stops_num - 1; ++i)
-                {
+            if (stops_num > 1){
+                for (int i = 0; i < stops_num - 1; ++i){
                     geo_length += ComputeDistance(Bus->stops[i]->coords, Bus->stops[i + 1]->coords);
                     meters_length += GetDistance(Bus->stops[i], Bus->stops[i + 1]);
                 }
                 curv = meters_length / geo_length;
             }
-            return { bus_name, uniq, geo_length, meters_length, curv };
+            return { bus_name, uniq, stops_num, geo_length, meters_length, curv };
         }
         else {
-            return { bus_name, 0, 0.0, 0, 0.0 };
+            return {bus_name, 0, 0, 0.0, 0, 0.0};
         }
     }
 
-    RequestResult TransportCatalogue::GetRouteInfo(std::string_view bus_name) {
+    /*RequestResult TransportCatalogue::GetRouteInfo(std::string_view bus_name) {
         RequestResult result;
         result.r_ptr = GetBus_ByName(bus_name);
         if (&(result.r_ptr) != nullptr) {
@@ -119,15 +124,16 @@ namespace transport_catalogue {
             result.code = RequestResultType::RouteNotExists;
         }
         return result;
-    }
+    }*/
 
 
-    RequestResult TransportCatalogue::GetBusesForStop(std::string_view stop_name) {
-        RequestResult result;
-        result.s_ptr = GetStopByName(stop_name);
-
-        if (result.s_ptr != nullptr) {
-            std::vector<std::string_view> found_buses_sv;
+    Stop_ TransportCatalogue::GetBusContainerForStop(std::string_view stop_name) {
+       //RequestResult result;
+        auto* result = GetStopByName(stop_name);
+        Stop_ stoppp;
+        stoppp.stops_name_ = stop_name;
+        if (result != nullptr) {
+            /*std::vector<std::string_view> found_buses_sv;
             for (auto& bus : all_buses_map_) {
                 auto tmp = std::find_if(bus.second->stops.begin(), bus.second->stops.end(),
                                         [stop_name](const Stop* curr_stop) {
@@ -151,6 +157,21 @@ namespace transport_catalogue {
         else {
             result.code = RequestResultType::StopNotExists;
         }
-        return result;
+        return result;*/
+            if (buses_in_stop_.count(result)) {
+                auto set_buses = buses_in_stop_.at(result);
+
+                for (const auto& bus : set_buses)
+                {
+                    stoppp.stops_name_ = stop_name;
+                    stoppp.bus_number_.push_back(bus->bus_number);
+                }
+                std::sort(stoppp.bus_number_.begin(), stoppp.bus_number_.end());
+                return stoppp;
+            }
+            return stoppp;
+        }
+        stoppp.passing = true;
+        return stoppp;
     }
 }
