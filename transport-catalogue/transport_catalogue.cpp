@@ -30,14 +30,6 @@ namespace transport_catalogue {
         }
     }
 
-    /*std::unordered_set<Bus*> TransportCatalogue::GetBusContainerForStop(const Stop* stop) {
-        if (buses_in_stop_.find(stop) != buses_in_stop_.end()) {
-            return buses_in_stop_.at(stop);
-        }
-        else
-            return {};
-    }*/
-
     void TransportCatalogue::SetDistance(const Stop* stop_from, const Stop* stop_to, size_t dist) {
         if (stop_from != nullptr && stop_to != nullptr) {
             distances_map_.insert({ { stop_from, stop_to }, dist });
@@ -114,50 +106,11 @@ namespace transport_catalogue {
         }
     }
 
-    /*RequestResult TransportCatalogue::GetRouteInfo(std::string_view bus_name) {
-        RequestResult result;
-        result.r_ptr = GetBus_ByName(bus_name);
-        if (&(result.r_ptr) != nullptr) {
-            result.code = RequestResultType::Ok;
-        }
-        else {
-            result.code = RequestResultType::RouteNotExists;
-        }
-        return result;
-    }*/
-
-
     Stop_ TransportCatalogue::GetBusContainerForStop(std::string_view stop_name) {
-       //RequestResult result;
         auto* result = GetStopByName(stop_name);
         Stop_ stoppp;
         stoppp.stops_name_ = stop_name;
-        if (result != nullptr) {
-            /*std::vector<std::string_view> found_buses_sv;
-            for (auto& bus : all_buses_map_) {
-                auto tmp = std::find_if(bus.second->stops.begin(), bus.second->stops.end(),
-                                        [stop_name](const Stop* curr_stop) {
-                                            return (curr_stop->name == stop_name);
-                                        });
-                if (tmp != bus.second->stops.end()) {
-                    found_buses_sv.push_back(bus.second->bus_number);
-                }
-            }
-            if (found_buses_sv.size() > 0) {
-                result.code = RequestResultType::Ok;
-                std::sort(found_buses_sv.begin(), found_buses_sv.end());
-                for (auto& element : found_buses_sv) {
-                    result.vector_str.emplace_back(std::string(element));
-                }
-            }
-            else {
-                result.code = RequestResultType::NoBuses;
-            }
-        }
-        else {
-            result.code = RequestResultType::StopNotExists;
-        }
-        return result;*/
+        if (result != nullptr) {        
             if (buses_in_stop_.count(result)) {
                 auto set_buses = buses_in_stop_.at(result);
 
