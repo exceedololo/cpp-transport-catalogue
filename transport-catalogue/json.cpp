@@ -24,15 +24,6 @@ namespace json {
             return Node(move(result));
         }
 
-        /*Node LoadInt(istream& input) {
-            int result = 0;
-            while (isdigit(input.peek())) {
-                result *= 10;
-                result += input.get() - '0';
-            }
-            return Node(result);
-        }*/
-
         Node LoadNumber(istream& input) {
             using namespace std::literals;
 
@@ -104,11 +95,6 @@ namespace json {
             }
         }
 
-        /*Node LoadString(istream& input) {
-            string line;
-            getline(input, line, '"');
-            return Node(move(line));
-        }*/
         Node LoadString(istream& input) {
             using namespace std::literals;
 
@@ -368,7 +354,74 @@ namespace json {
         }
 
     }  // namespace
+           
+    bool Node::operator==(const Node& rhs) const{
+        return GetValue() == rhs.GetValue();
+    }
+   
+    bool Node::operator!=(const Node& rhs) const{
+        return GetValue() != rhs.GetValue();
+    }
 
+
+    bool Node::IsInt() const{
+        return std::holds_alternative<int>(*this);
+    }
+            
+    bool Node::IsDouble() const{
+        return (std::holds_alternative<double>(*this) || IsInt());
+    }
+            
+    bool Node::IsPureDouble() const{
+        return std::holds_alternative<double>(*this);
+    }
+            
+    bool Node::IsBool() const{
+        return std::holds_alternative<bool>(*this);
+    }
+            
+    bool Node::IsString() const{
+        return std::holds_alternative<std::string>(*this);
+    }
+            
+    bool Node::IsNull() const{
+        return std::holds_alternative<std::nullptr_t>(*this);
+    }
+            
+    bool Node::IsArray() const{
+        return std::holds_alternative<Array>(*this);
+    }
+            
+    bool Node::IsMap() const{
+        return std::holds_alternative<Dict>(*this);
+    }
+
+    /////////
+    const Array& Node::AsArray() const{
+        return(!IsArray()) ? throw std::logic_error("Array error") : std::get<Array>(*this);
+    }
+            
+    const Dict& Node::AsMap() const{
+        return (!IsMap()) ? throw std::logic_error("Map error") : std::get<Dict>(*this);
+    }
+            
+    int Node::AsInt() const{
+        return (!IsInt()) ? throw std::logic_error("Int error") : std::get<int>(*this);
+    }
+            
+    const std::string& Node::AsString() const{
+        return (!IsString()) ? throw std::logic_error("String error") : std::get<std::string>(*this);
+    }
+            
+    bool Node::AsBool() const{
+        return (!IsBool()) ? throw std::logic_error("Bool error") :
+        std::get<bool>(*this);
+    }
+            
+    double Node::AsDouble() const{
+        return(!IsDouble()) ? throw std::logic_error("Double error") :
+        IsPureDouble() ? std::get<double>(*this) : AsInt();
+    }   
 
     Document Load(std::istream& input) {
         return Document{ LoadNode(input) };

@@ -18,7 +18,12 @@ int main() {
 
     transport_catalogue::TransportCatalogue catalog;
     json::Document document = json_reader::InputJSON(std::cin);
-    json_reader::PackJSON(catalog, document);
+    
+    json_reader::JSONReader JsonReader;
+    JsonReader.PackJsonStop(catalog, document);
+    JsonReader.PackJsonBus(catalog, document);
+    JsonReader.FillJsonStop(catalog, document);
+    JsonReader.FillJsonBus(catalog, document);
     auto& j = document.GetRoot().AsMap().at("render_settings").AsMap();
     renderer::MapRenderer ren(j, catalog);
     auto str = ren.PrintingMap();

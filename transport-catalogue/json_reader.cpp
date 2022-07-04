@@ -13,29 +13,48 @@ namespace json_reader {
         return doc;
     }
 
-    void PackJSON(transport_catalogue::TransportCatalogue& transport_catalogue, json::Document& doc) {
+    void JSONReader::PackJsonStop(transport_catalogue::TransportCatalogue& transport_catalogue, json::Document& doc) {
         if (doc.GetRoot().AsMap().count("base_requests")) {
             for (const auto& node_map : doc.GetRoot().AsMap().at("base_requests").AsArray()) {
                 if (node_map.AsMap().at("type").AsString() == "Stop") {
-                    transport_catalogue::Stop st;
+                    domain::Stop st;
                     st.name = node_map.AsMap().at("name").AsString();
                     st.coords = { node_map.AsMap().at("latitude").AsDouble(),  node_map.AsMap().at("longitude").AsDouble() };
                     transport_catalogue.SetStop(st);
                 }
-                else if (node_map.AsMap().at("type").AsString() == "Bus") {
-                    transport_catalogue::Bus bs;
+            }
+        }
+    }
+    
+    void JSONReader::PackJsonBus(transport_catalogue::TransportCatalogue& transport_catalogue, json::Document& doc) {
+        if (doc.GetRoot().AsMap().count("base_requests")) {
+            for (const auto& node_map : doc.GetRoot().AsMap().at("base_requests").AsArray()) {
+                if (node_map.AsMap().at("type").AsString() == "Bus") {
+                    domain::Bus bs;
                     bs.bus_number = node_map.AsMap().at("name").AsString();
                     bs.is_roundtrip = node_map.AsMap().at("is_roundtrip").AsBool();
                     transport_catalogue.SetRoute(bs);
                 }
             }
+        }
+    }
+    
+    void JSONReader::FillJsonStop(transport_catalogue::TransportCatalogue& transport_catalogue, json::Document& doc) {
+        if (doc.GetRoot().AsMap().count("base_requests")) {
             for (const auto& node_map : doc.GetRoot().AsMap().at("base_requests").AsArray()) {
                 if (node_map.AsMap().at("type").AsString() == "Stop") {
                     for (const auto& [key, val] : node_map.AsMap().at("road_distances").AsMap()) {
                         transport_catalogue.SetDistance(transport_catalogue.GetStopByName(node_map.AsMap().at("name").AsString()), transport_catalogue.GetStopByName(key), val.AsInt());
                     }
                 }
-                else if (node_map.AsMap().at("type").AsString() == "Bus") {
+            }
+        }
+    }
+    
+    void JSONReader::FillJsonBus(transport_catalogue::TransportCatalogue& transport_catalogue, json::Document& doc) {
+        if (doc.GetRoot().AsMap().count("base_requests")) {
+            for (const auto& node_map : doc.GetRoot().AsMap().at("base_requests").AsArray()) {      
+                if (node_map.AsMap().at("type").AsString() == "Bus") {
                     auto b = node_map.AsMap().at("name").AsString();
                     for (size_t i = 0; i < node_map.AsMap().at("stops").AsArray().size(); ++i) {
                         transport_catalogue.GetRouteByName(b)->stops.push_back(transport_catalogue.GetStopByName(node_map.AsMap().at("stops").AsArray()[i].AsString()));
@@ -53,7 +72,7 @@ namespace json_reader {
         }
     }
 
-    void PrintJSON(transport_catalogue::TransportCatalogue& transport_catalogue, json::Document& doc, std::string result_map_render) {
+    void PrintJSON(transport_catalogue::TransportCatalogue& transport_catalogue, json::Document& doc, const std::string& result_map_render) {
         using namespace std::literals;
         json::Array arr;
         if (doc.GetRoot().AsMap().count("stat_requests")) {
@@ -63,11 +82,11 @@ namespace json_reader {
                     std::string tmp = node_map.AsMap().at("name").AsString();
                     if (transport_catalogue.GetRouteByName(tmp) != nullptr) {
                         arr.emplace_back(json::Dict{
-                            {"curvature", json::Node(transport_catalogue.GetBus_ByName(tmp).curvature)},
+                            {"curvature", json::Node(transport_catalogue.GetBusByName(tmp).curvature)},
                             {"request_id", id_q},
-                            {"route_length", json::Node(transport_catalogue.GetBus_ByName(tmp).meters_route_length)},
-                            {"stop_count", json::Node(static_cast<int>(transport_catalogue.GetRouteByName(transport_catalogue.GetBus_ByName(tmp).bus_number_)->stops.size()))},
-                            {"unique_stop_count", json::Node(transport_catalogue.GetBus_ByName(tmp).unique_stops_qty)},
+                            {"route_length", json::Node(transport_catalogue.GetBusByName(tmp).meters_route_length)},
+                            {"stop_count", json::Node(static_cast<int>(transport_catalogue.GetRouteByName(transport_catalogue.GetBusByName(tmp).bus_number_)->stops.size()))},
+                            {"unique_stop_count", json::Node(transport_catalogue.GetBusByName(tmp).unique_stops_qty)},
                         });
                     }
                     else {

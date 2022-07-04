@@ -7,6 +7,7 @@
 #include "svg.h"
 #include "json_reader.h"
 #include "geo.h"
+//#include "domain.h"
 
 
 #include <algorithm>
@@ -139,11 +140,11 @@ namespace renderer{
 	public:
 		explicit MapRenderer(const json::Dict& render_settings, transport_catalogue::TransportCatalogue& transport_catalogue);
 
-		inline svg::Color AddColor(const json::Node& node);
+		svg::Color AddColor(const json::Node& node);
 
-		inline svg::Polyline AddRoute(const transport_catalogue::Bus& bus, const svg::Color& color);
+		svg::Polyline AddRoute(const domain::Bus& bus, const svg::Color& color);
 
-		inline void FillBusTrain(const transport_catalogue::Bus& bus, const svg::Color& color);
+		void FillBusTrain(const domain::Bus& bus, const svg::Color& color);
 
 		void SetSphereProjector(transport_catalogue::TransportCatalogue& transport_catalogue);
 
@@ -151,25 +152,25 @@ namespace renderer{
 
 		std::string PrintingMap()const;
 
-		inline svg::Text TextSvgForBus(const svg::Point& pos, const std::string& data);
+		svg::Text TextSvgForBus(const svg::Point& pos, const std::string& data);
 
-		inline svg::Text CreateSVGTextForBus(const svg::Point& pos, const svg::Color& color, const std::string& data);
+		svg::Text CreateSVGTextForBus(const svg::Point& pos, const svg::Color& color, const std::string& data);
 
-		inline svg::Text CreateSVGTextForBus(const svg::Point& pos, const std::string& data);
+		svg::Text CreateSVGTextForBus(const svg::Point& pos, const std::string& data);
 
-		inline std::vector<svg::Text> AddNameBus(const transport_catalogue::Bus& bus, const svg::Color& color);
+		std::vector<svg::Text> AddNameBus(const domain::Bus& bus, const svg::Color& color);
 
-		inline svg::Text TextSvgForStop(const svg::Point& pos, const std::string& data);
+		svg::Text TextSvgForStop(const svg::Point& pos, const std::string& data);
 
-		inline svg::Text CreateSVGTextForStop(const svg::Point& pos, const svg::Color& color, const std::string& data);
+		svg::Text CreateSVGTextForStop(const svg::Point& pos, const svg::Color& color, const std::string& data);
 
-		inline svg::Text CreateSVGTextForStop(const svg::Point& pos, const std::string& data);
+		svg::Text CreateSVGTextForStop(const svg::Point& pos, const std::string& data);
 
-		inline std::vector<SVGTextStopInfo> AddNameStops(const transport_catalogue::Bus& bus);
+		std::vector<SVGTextStopInfo> AddNameStops(const domain::Bus& bus);
 
-		inline std::vector<SVGCircleStop> AddCircleStops(const transport_catalogue::Bus& bus);
+		std::vector<SVGCircleStop> AddCircleStops(const domain::Bus& bus);
 
-		inline SVGBusInfo FillInfo(const std::vector<BusSVG>& buses)const;
+		SVGBusInfo FillInfo(const std::vector<BusSVG>& buses)const;
 
 	private:
         MapRenderSettings MRSettings_;

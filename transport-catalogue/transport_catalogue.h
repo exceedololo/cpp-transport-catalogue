@@ -1,5 +1,7 @@
 #pragma once
 #include "geo.h"
+#include "domain.h"
+
 #include <deque>
 #include <string>
 #include <string_view>
@@ -15,41 +17,9 @@
 
 namespace transport_catalogue {
 
-    struct Stop {
-    public:
-        std::string name;
-        geo::Coordinates coords {0L, 0L};
-    };
-
-    struct Bus {
-        std::string bus_number;
-        std::vector<const Stop*> stops;
-        bool is_roundtrip;
-    };
-
-    struct Bus_ {
-        std::string_view bus_number_;
-        int unique_stops_qty = 0U;
-        int stops_num = 0U;
-        double geo_route_length = 0L;
-        int meters_route_length = 0U;
-        double curvature = 0L;
-    };
-    
-    struct Stop_{
-        std::string_view stops_name_{};
-        std::vector<std::string> bus_number_;
-        bool passing;
-    };
-
-
     class PairPointersHasher {
     public:
-        std::size_t operator()(const std::pair<const Stop*, const Stop*> pair_of_pointers) const noexcept {
-            auto ptr1 = static_cast<const void*>(pair_of_pointers.first);
-            auto ptr2 = static_cast<const void*>(pair_of_pointers.second);
-            return hasher_(ptr1) * 37 + hasher_(ptr2);
-        }
+        std::size_t operator()(const std::pair<const domain::Stop*, const domain::Stop*> pair_of_pointers) const noexcept; 
 
     private:
         std::hash<const void*> hasher_;
@@ -61,38 +31,37 @@ namespace transport_catalogue {
         TransportCatalogue();
         ~TransportCatalogue();
 
-        void SetStop(const Stop&);
-        void SetRoute(const Bus&);
+        void SetStop(const domain::Stop&);
+        void SetRoute(const domain::Bus&);
         void AddStopToBusMap(const std::string_view route);
-        const Stop* GetStopByName(std::string_view);
-        Bus* GetRouteByName(std::string_view);     
+        const domain::Stop* GetStopByName(std::string_view);
+        domain::Bus* GetRouteByName(std::string_view);     
 
-        //std::unordered_set<Bus*> GetBusContainerForStop(const Stop* stop);
-        Stop_ GetBusContainerForStop(std::string_view);
-        Bus_ GetBus_ByName(std::string_view);
+        domain::Stop_ GetBusContainerForStop(std::string_view);
+        domain::Bus_ GetBusByName(std::string_view);
         
-        void SetDistance(const Stop*, const Stop*, size_t);
-        size_t GetDistance(const Stop*, const Stop*);
-        size_t GetDistanceDirectly(const Stop*, const Stop*);
+        void SetDistance(const domain::Stop*, const domain::Stop*, size_t);
+        size_t GetDistance(const domain::Stop*, const domain::Stop*);
+        size_t GetDistanceDirectly(const domain::Stop*, const domain::Stop*);
 
-        std::deque<Bus> GetAllBusesData() {
+        std::deque<domain::Bus> GetAllBusesData() {
             return all_buses_data_;
         }
-        std::deque<Stop> GetAllStopsData() {
+        std::deque<domain::Stop> GetAllStopsData() {
             return all_stops_data_;
         }
     private:
-        std::deque<Stop> all_stops_data_;
-        std::unordered_map<std::string_view, const Stop*> all_stops_map_;
-        std::deque<Bus> all_buses_data_;
-        std::unordered_map<std::string_view, Bus*> all_buses_map_;
+        std::deque<domain::Stop> all_stops_data_;
+        std::unordered_map<std::string_view, const domain::Stop*> all_stops_map_;
+        std::deque<domain::Bus> all_buses_data_;
+        std::unordered_map<std::string_view, domain::Bus*> all_buses_map_;
         
-        std::unordered_map<std::pair<const Stop*, const Stop*>, size_t, PairPointersHasher> distances_map_;
-        std::unordered_map<const Stop*, std::unordered_set<Bus*>> buses_in_stop_;
+        std::unordered_map<std::pair<const domain::Stop*, const domain::Stop*>, size_t, PairPointersHasher> distances_map_;
+        std::unordered_map<const domain::Stop*, std::unordered_set<domain::Bus*>> buses_in_stop_;
 
-        std::string_view GetStopName(const Stop* stop_ptr);
-        std::string_view GetStopName(const Stop stop);
-        std::string_view GetBusName(const Bus* route_ptr);
-        std::string_view GetBusName(const Bus route);
+        std::string_view GetStopName(const domain::Stop* stop_ptr);
+        std::string_view GetStopName(const domain::Stop stop);
+        std::string_view GetBusName(const domain::Bus* route_ptr);
+        std::string_view GetBusName(const domain::Bus route);
     };
 }

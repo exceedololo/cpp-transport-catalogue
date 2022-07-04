@@ -64,7 +64,7 @@ namespace renderer{
 		return color;	
 	}
 
-	svg::Polyline MapRenderer::AddRoute (const transport_catalogue::Bus& bus, const svg::Color& color){
+	svg::Polyline MapRenderer::AddRoute (const domain::Bus& bus, const svg::Color& color){
 		svg::Polyline route_bus;
 		route_bus.SetStrokeColor(color);
 		route_bus.SetFillColor("none");
@@ -100,7 +100,7 @@ namespace renderer{
 			.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
 	}
 
-	std::vector<svg::Text> MapRenderer::AddNameBus(const transport_catalogue::Bus& bus, const svg::Color& color){
+	std::vector<svg::Text> MapRenderer::AddNameBus(const domain::Bus& bus, const svg::Color& color){
 		std::vector<svg::Text>result;
 		result.push_back(CreateSVGTextForBus(sphere_({ bus.stops.front()->coords.lat, bus.stops.front()->coords.lng }), bus.bus_number));
 		result.push_back(CreateSVGTextForBus(sphere_({ bus.stops.front()->coords.lat, bus.stops.front()->coords.lng }), color, bus.bus_number));
@@ -134,7 +134,7 @@ namespace renderer{
 			.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
 	}
 
-	std::vector<SVGTextStopInfo> MapRenderer::AddNameStops(const transport_catalogue::Bus& bus){
+	std::vector<SVGTextStopInfo> MapRenderer::AddNameStops(const domain::Bus& bus){
 		std::vector<SVGTextStopInfo> result;
 		for (size_t i = 0; i < bus.stops.size() - 1; ++i){
 			result.push_back({ bus.stops[i]->name
@@ -144,7 +144,7 @@ namespace renderer{
 		return result;
 	}
 
-	std::vector<SVGCircleStop> MapRenderer::AddCircleStops(const transport_catalogue::Bus& bus){
+	std::vector<SVGCircleStop> MapRenderer::AddCircleStops(const domain::Bus& bus){
 		std::vector<SVGCircleStop> result;
 		for (size_t i = 0; i < bus.stops.size() - 1; ++i){
 			svg::Circle circle;
@@ -158,11 +158,11 @@ namespace renderer{
 
 	void MapRenderer::AddBusSVG(transport_catalogue::TransportCatalogue& transport_catalogue){
 		SetSphereProjector(transport_catalogue);
-		std::vector<transport_catalogue::Bus>buses;
+		std::vector<domain::Bus>buses;
 		for (const auto& bus : transport_catalogue.GetAllBusesData()){
 			buses.push_back(bus);
 		}
-		sort(buses.begin(), buses.end(), [](const transport_catalogue::Bus& lhs, const transport_catalogue::Bus& rhs){
+		sort(buses.begin(), buses.end(), [](const domain::Bus& lhs, const domain::Bus& rhs){
 				return lhs.bus_number < rhs.bus_number;
 		});
 		int j = 0;
@@ -177,7 +177,7 @@ namespace renderer{
 		}
 	}
 
-	void MapRenderer::FillBusTrain(const transport_catalogue::Bus& bus, const svg::Color& color){
+	void MapRenderer::FillBusTrain(const domain::Bus& bus, const svg::Color& color){
 		bus_train.push_back({ AddRoute(bus,color) ,AddNameBus(bus, color) ,AddCircleStops(bus) ,AddNameStops(bus) });
 	}
 
@@ -193,7 +193,7 @@ namespace renderer{
 		}
 	}
 
-	inline SVGBusInfo MapRenderer::FillInfo (const std::vector<BusSVG>& buses) const {
+	SVGBusInfo MapRenderer::FillInfo (const std::vector<BusSVG>& buses) const {
 		SVGBusInfo temp;
 		for (const auto& bus : buses){
 			if (bus.svg_name_stops.size()){

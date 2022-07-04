@@ -24,63 +24,46 @@ namespace json {
         using variant::variant;
         using Value = variant;
 
-    bool IsInt() const{
-        return std::holds_alternative<int>(*this);//почему не работает или нельзя поставит *this в скобках - выглядит круче
-    }
-    bool IsDouble() const{
-        return (std::holds_alternative<double>(*this) || IsInt());
-    }
-    bool IsPureDouble() const{
-        return std::holds_alternative<double>(*this);
-    }
-    bool IsBool() const{
-        return std::holds_alternative<bool>(*this);
-    }
-    bool IsString() const{
-        return std::holds_alternative<std::string>(*this);
-    }
-    bool IsNull() const{
-        return std::holds_alternative<std::nullptr_t>(*this);
-    }
-    bool IsArray() const{
-        return std::holds_alternative<Array>(*this);
-    }
-    bool IsMap() const{
-        return std::holds_alternative<Dict>(*this);
-    }
+    bool IsInt() const;
+            
+    bool IsDouble() const;
+            
+    bool IsPureDouble() const;
+            
+    bool IsBool() const;
+            
+    bool IsString() const;
+            
+    bool IsNull() const;
+            
+    bool IsArray() const;
+            
+    bool IsMap() const;
 
     /////////
-    const Array& AsArray() const{
-        return(!IsArray()) ? throw std::logic_error("Array error") : std::get<Array>(*this);
-    }
-    const Dict& AsMap() const{
-        return (!IsMap()) ? throw std::logic_error("Map error") : std::get<Dict>(*this);
-    }
-    int AsInt() const{
-        return (!IsInt()) ? throw std::logic_error("Int error") : std::get<int>(*this);
-    }
-    const std::string& AsString() const{
-        return (!IsString()) ? throw std::logic_error("String error") : std::get<std::string>(*this);
-    }
-    bool AsBool() const{
-        return (!IsBool()) ? throw std::logic_error("Bool error") :
-        std::get<bool>(*this);
-    }
-    double AsDouble() const{
-        return(!IsDouble()) ? throw std::logic_error("Double error") :
-        IsPureDouble() ? std::get<double>(*this) : AsInt();
-    }
+    const Array& AsArray() const;
+            
+    const Dict& AsMap() const;
+            
+    int AsInt() const;
+            
+    const std::string& AsString() const;
+            
+    bool AsBool() const;
+            
+    double AsDouble() const;
     
     const Value& GetValue() const {
         return *this; 
     }
-    
+       
+    bool operator==(const Node& rhs) const; /*{
+        return GetValue() == rhs.GetValue();
+    }*/
    
-    bool operator==(const Node& rhs) const{
-        return GetValue() == rhs.GetValue();}
-   
-    bool operator!=(const Node& rhs) const{
-        return GetValue() != rhs.GetValue();}
+    bool operator!=(const Node& rhs) const; /*{
+        return GetValue() != rhs.GetValue();
+    }*/
 
 };
 
